@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { AuthService } from "src/firebase/auth.service";
+import { AuthService } from "src/auth/auth.service";
 
 @Injectable()
 export class authGuard implements CanActivate {
@@ -13,7 +13,8 @@ export class authGuard implements CanActivate {
         }
         try {
             const decodedToken=await this.authService.verifyIdToken(token);
-            request['user']=decodedToken;
+            request['userUid']=decodedToken.uid;
+            request['email']=decodedToken.email;
             return true;
         } catch (error) {
             throw new UnauthorizedException('invalid Token');
