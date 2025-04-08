@@ -1,3 +1,4 @@
+import { Invoice } from "src/invoice/entities/invoice.entity";
 import { Rol } from "src/rol/entities/rol.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -15,7 +16,7 @@ export class User {
     address?:string;
     @Column()
     phone?:string;
-    @Column()
+    @Column({unique:true})
     uid:string;
     @ManyToMany(()=>Rol,(Rol)=>Rol.users,{eager:true})
     @JoinTable({name:'user_roles'})

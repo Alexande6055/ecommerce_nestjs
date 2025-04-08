@@ -1,9 +1,9 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { AuthService } from "src/auth/auth.service";
+import { FirebaseService } from "src/firebase/firebase.service";
 
 @Injectable()
-export class authGuard implements CanActivate {
-    constructor(private readonly authService: AuthService) { }
+export class FirebaseGuard implements CanActivate {
+    constructor(private readonly firebaseService: FirebaseService) { }
 
     async canActivate(context: ExecutionContext) {
         const request=context.switchToHttp().getRequest();
@@ -12,7 +12,7 @@ export class authGuard implements CanActivate {
             throw new UnauthorizedException('pleace send token');
         }
         try {
-            const decodedToken=await this.authService.verifyIdToken(token);
+            const decodedToken=await this.firebaseService.verifyIdToken(token);
             request['userUid']=decodedToken.uid;
             request['email']=decodedToken.email;
             return true;
