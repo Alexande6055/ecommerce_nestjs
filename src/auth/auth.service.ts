@@ -19,7 +19,7 @@ export class AuthService {
         return await this.userService.create(uid, email)
     }
     async login(email: string, userUid: string) {
-        let user = await this.userService.findOneByFirebaseUID(userUid);
+        let user = await this.userService.findOneUid(userUid);
         if (!user) {
             user = await this.userService.create({ mail: email, uid: "" }, userUid)
         }

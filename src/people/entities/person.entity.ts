@@ -7,7 +7,7 @@ export class Person {
     id: number;
     @Column()
     name: string;
-    @Column()
+    @Column({unique:true})
     cedula: string;
     @Column()
     address: string;

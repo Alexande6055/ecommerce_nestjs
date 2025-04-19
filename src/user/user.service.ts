@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, Request } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, Request } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,9 +9,6 @@ import { UpdatePersonDto } from 'src/people/dto/update-person.dto';
 
 @Injectable()
 export class UserService {
-
-
-
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -20,6 +17,11 @@ export class UserService {
     private readonly peopleService: PeopleService
   ) { }
 
+  async findOne(id: number) {
+    const user = await this.userRepository.findOneBy({ id: id });
+    if (!user) throw new NotFoundException('ERROR: user not Found');
+    return user;
+  }
 
   private isEmptyObject(obj: any): boolean {
     return !obj || Object.keys(obj).length === 0;
@@ -27,19 +29,20 @@ export class UserService {
 
 
   async updatePersonData(updatePersonDTO: UpdatePersonDto, uid: string) {
-    if (this.isEmptyObject(updatePersonDTO)) {
+    if (!updatePersonDTO.address && !updatePersonDTO.phone) {
       throw new BadRequestException('No data was sent')
     }
     const userFinded = await this.findOneUid(uid);
-    if (!userFinded.idPersona) throw new Error("register data of person")
+
+    if (!userFinded.idPersona) throw new BadRequestException("register data of person")
 
     if (userFinded.idPersona.address === updatePersonDTO.address && userFinded.idPersona.phone === updatePersonDTO.phone) {
-      return userFinded;
+      return userFinded.idPersona;
     }
     return await this.peopleService.updateData(updatePersonDTO, userFinded.idPersona);
   }
 
- 
+
   /**
    * metodo parqa crear un usuario 
    * mediante el correo y uid de Firebase
@@ -68,8 +71,8 @@ export class UserService {
 
 
 
-  private async findOneUid(uid: string) {
-    const user = await this.userRepository.findOneBy({ uid: uid });
+  async findOneUid(uid: string) {
+    const user = await this.userRepository.findOne({ where: { uid: uid }, relations: ['idPersona'] });
     if (!user) throw new NotFoundException('ERROR: user not Found');
     return user;
   }
@@ -78,9 +81,9 @@ export class UserService {
    * Method to created person, it used in method of the People service
    */
   async createPerson(createPersonDTO: CreatePersonDto, uid: string) {
+    const userToModify = await this.findOneUid(uid);
+    if (userToModify.idPersona) throw new ConflictException("this user already have relation with a person");
     const personCreated = await this.peopleService.create(createPersonDTO);
-    const userToModify = await this.userRepository.findOneBy({ uid: uid });
-    if (!userToModify) throw new Error("the user not found");
     userToModify.idPersona = personCreated;
     const userModify = await this.userRepository.save(userToModify);
     if (!userModify) throw new Error("The user could not be modified");
