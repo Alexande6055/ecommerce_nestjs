@@ -1,21 +1,13 @@
-import { Invoice } from "src/invoice/entities/invoice.entity";
+import { Person } from "src/people/entities/person.entity";
 import { Rol } from "src/rol/entities/rol.entity";
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name:'Users'})
 export class User {
     @PrimaryGeneratedColumn()
     id?:number;
     @Column()
-    name?:string;  
-    @Column()
     mail:string;
-    @Column()
-    cedula?:string;
-    @Column()
-    address?:string;
-    @Column()
-    phone?:string;
     @Column({unique:true})
     uid:string;
     @ManyToMany(()=>Rol,(Rol)=>Rol.users,{eager:true})

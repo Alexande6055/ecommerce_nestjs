@@ -1,12 +1,21 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Carrier } from "src/carrier/entities/carrier.entity";
+import { Categorie } from "src/categorie/entities/categorie.entity";
+import { CreditTransaction } from "src/credit-transaction/entities/credit-transaction.entity";
 import { InvoiceDetail } from "src/invoice-detail/entities/invoice-detail.entity";
 import { Invoice } from "src/invoice/entities/invoice.entity";
+import { Notification } from "src/notification/entities/notification.entity";
+import { Person } from "src/people/entities/person.entity";
 import { Product } from "src/product/entities/product.entity";
 import { Rol } from "src/rol/entities/rol.entity";
+import { Shipment } from "src/shipment/entities/shipment.entity";
+import { SpecialPrice } from "src/special-price/entities/special-price.entity";
 import { Invoicestatus } from "src/status/entities/invoiceStatus.entity";
 import { PaymentStatus } from "src/status/entities/paymentStatus.entity";
+import { TypeTransacction } from "src/type-transacction/entities/type-transacction.entity";
+import { UserCredit } from "src/user-credits/entities/user-credit.entity";
 import { User } from "src/user/entities/user.entity";
 
 @Module({
@@ -26,9 +35,18 @@ import { User } from "src/user/entities/user.entity";
                 PaymentStatus, 
                 Invoice,
                 InvoiceDetail,
-                Product
+                Product,
+                Person,
+                Notification,
+                SpecialPrice,
+                Categorie,
+                Carrier,
+                Shipment,
+                CreditTransaction,
+                TypeTransacction,
+                UserCredit
             ],
-            synchronize: false,
+            synchronize: true,
         }),
     ],
     exports: [TypeOrmModule],
