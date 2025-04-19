@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { CreateUserDto } from "src/user/dto/create-user.dto";
 import { UserService } from "src/user/user.service";
 
 @Injectable()
@@ -12,12 +11,12 @@ export class AuthService {
     }
 
 
-    async register(dto: CreateUserDto, req: string) {
+    async register(uid:string,email:string) {
 
         /**
          * Completar comprobacion de validacion si el usuario ya existe para evitar problemas
          */
-        return await this.userService.create(dto, req)
+        return await this.userService.create(uid, email)
     }
     async login(email: string, userUid: string) {
         let user = await this.userService.findOneByFirebaseUID(userUid);

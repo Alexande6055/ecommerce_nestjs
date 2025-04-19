@@ -1,62 +1,91 @@
-import { Injectable, NotFoundException, Request } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { BadRequestException, Injectable, NotFoundException, Request } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Rol } from 'src/rol/entities/rol.entity';
-import { verifiExist } from 'src/utils/controlException';
+import { CreatePersonDto } from 'src/people/dto/create-person.dto';
+import { PeopleService } from 'src/people/people.service';
+import { UpdatePersonDto } from 'src/people/dto/update-person.dto';
 
 @Injectable()
 export class UserService {
-  findOneByFirebaseUID(userUid: string) {
-    const user=this.userRepository.findOneBy({uid:userUid});
-    verifiExist(user,"user");
-    return user;
-  }
+
+
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Rol)
-    private rolRepository:Repository<Rol>,
+    private rolRepository: Repository<Rol>,
+    private readonly peopleService: PeopleService
   ) { }
-  async create(createUserDto: CreateUserDto,uidUser) {
+
+
+  private isEmptyObject(obj: any): boolean {
+    return !obj || Object.keys(obj).length === 0;
+  }
+
+
+  async updatePersonData(updatePersonDTO: UpdatePersonDto, uid: string) {
+    if (this.isEmptyObject(updatePersonDTO)) {
+      throw new BadRequestException('No data was sent')
+    }
+    const userFinded = await this.findOneUid(uid);
+    if (!userFinded.idPersona) throw new Error("register data of person")
+
+    if (userFinded.idPersona.address === updatePersonDTO.address && userFinded.idPersona.phone === updatePersonDTO.phone) {
+      return userFinded;
+    }
+    return await this.peopleService.updateData(updatePersonDTO, userFinded.idPersona);
+  }
+
+ 
+  /**
+   * metodo parqa crear un usuario 
+   * mediante el correo y uid de Firebase
+   */
+
+  async create(uid, email) {
+    //creamos una entidad de user
     const user = this.userRepository.create({
-      uid: uidUser,
-      mail: createUserDto.mail,
+      uid: uid,
+      mail: email,
+      idPersona: null,
     })
 
-    const defaulRol=await this.rolRepository.findOneBy({name:'USER'});
-    if (!defaulRol){
+    //obtenemos el rol por default USER
+    const defaulRol = await this.rolRepository.findOneBy({ name: 'USER' });
+    if (!defaulRol) {
       throw new NotFoundException('Problemas con la base de Datos');
     }
-    user.roles=[defaulRol];
+
+    //modificamos el rol de la entiddad user recien creada
+    user.roles = [defaulRol];
+
+    //guardamos el user en la base de datos
     return this.userRepository.save(user);
   }
 
 
-  findAll() {
-    return `This action returns all user`;
-  }
 
-  async findOne(id: number) {
-    const user =await this.userRepository.findOneBy({id:id});
-    if(!user) throw new NotFoundException('ERROR: user not Found'); 
+  private async findOneUid(uid: string) {
+    const user = await this.userRepository.findOneBy({ uid: uid });
+    if (!user) throw new NotFoundException('ERROR: user not Found');
     return user;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const registeredUser=await this.userRepository.findOneBy({id:id});
-    verifiExist(registeredUser,"user");
-
-   
-    return await this.userRepository.save({
-      ...registeredUser,
-      ...updateUserDto
-    });
+  /**
+   * Method to created person, it used in method of the People service
+   */
+  async createPerson(createPersonDTO: CreatePersonDto, uid: string) {
+    const personCreated = await this.peopleService.create(createPersonDTO);
+    const userToModify = await this.userRepository.findOneBy({ uid: uid });
+    if (!userToModify) throw new Error("the user not found");
+    userToModify.idPersona = personCreated;
+    const userModify = await this.userRepository.save(userToModify);
+    if (!userModify) throw new Error("The user could not be modified");
+    return userModify;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
+
 }

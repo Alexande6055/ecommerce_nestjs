@@ -1,6 +1,6 @@
 import { Person } from "src/people/entities/person.entity";
 import { Rol } from "src/rol/entities/rol.entity";
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name:'Users'})
 export class User {
@@ -13,5 +13,8 @@ export class User {
     @ManyToMany(()=>Rol,(Rol)=>Rol.users,{eager:true})
     @JoinTable({name:'user_roles'})
     roles:Rol[];
+    @OneToOne(()=>Person)
+    @JoinColumn()
+    idPersona:Person | null;
 
 }

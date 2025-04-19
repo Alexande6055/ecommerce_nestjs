@@ -1,6 +1,4 @@
-import { Type } from "class-transformer";
-import { IsObject, IsString, ValidateNested } from "class-validator";
-import { User } from "src/user/entities/user.entity";
+import {  IsString } from "class-validator";
 
 export class CreatePersonDto {
 
@@ -12,8 +10,4 @@ export class CreatePersonDto {
     address: string;
     @IsString()
     phone: string;
-    @IsObject()
-    @Type(()=>User)
-    @ValidateNested()
-    idUser: User;
 }
