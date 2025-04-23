@@ -13,5 +13,6 @@ export class Person {
     address: string;
     @Column()
     phone: string;
-
+    @Column({default:false})
+    sipplier_status:boolean
 }

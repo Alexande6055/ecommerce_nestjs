@@ -1,7 +1,9 @@
 import { Categorie } from "src/categorie/entities/categorie.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Person } from "src/people/entities/person.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity({name:'products'})
+@Unique(['name','idPerson'])
 export class Product {
     @PrimaryGeneratedColumn()
     id:number;
@@ -15,4 +17,6 @@ export class Product {
     price:number;
     @ManyToOne(()=>Categorie,(categorie)=>categorie.id)
     idCategori:Categorie;
+    @ManyToOne(()=>Person,(person)=>person.id)
+    idPerson:Person
 }
