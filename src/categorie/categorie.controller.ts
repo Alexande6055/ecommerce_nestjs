@@ -17,18 +17,8 @@ export class CategorieController {
     return this.categorieService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categorieService.findOne(+id);
-  }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategorieDto: UpdateCategorieDto) {
-    return this.categorieService.update(+id, updateCategorieDto);
-  }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categorieService.remove(+id);
-  }
+
+
 }
